@@ -1,0 +1,28 @@
+# Virtual Environment
+.venv/
+venv/
+ENV/
+env/
+
+# Python Cache & Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# SQLite Database & Write-Ahead Logs
+*.db
+*.db-wal
+*.db-shm
+
+# Sandbox Simulation Artifacts
+sandbox_target/*
+!sandbox_target/.gitkeep
+sandbox_cron/*
+!sandbox_cron/.gitkeep
+
+# OS & Editor Artifacts
+.DS_Store
+.idea/
+.vscode/
+*.swp

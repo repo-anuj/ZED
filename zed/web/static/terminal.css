@@ -1,0 +1,479 @@
+/*
+ * ZED EDR Terminal Theme
+ * Linux Mint / Retro-Console Cybernetic Styling
+ * 100% Monospace, Scanlines, Phosphor Glow, Zero AI Pastel Aesthetic
+ */
+
+:root {
+  --bg-black: #080d08;
+  --bg-panel: #0d140e;
+  --bg-panel-header: #131f14;
+  --border-green: #1e3b22;
+  --border-bright: #397a40;
+  --text-mint: #87cf3e;        /* Signature Linux Mint Green */
+  --text-green: #2bf04c;       /* Terminal Phosphor Green */
+  --text-dim: #5c7e60;         /* Dim terminal comment text */
+  --text-cyan: #00e5ff;        /* Terminal Cyan */
+  --text-amber: #ffb000;       /* Warning Amber */
+  --text-red: #ff3333;         /* Critical Alert Red */
+  --text-white: #d8edd8;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'DejaVu Sans Mono', 'Ubuntu Mono', 'Courier New', monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-black);
+  color: var(--text-green);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.45;
+  padding: 10px;
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* CRT Scanlines Overlay */
+body::before {
+  content: " ";
+  display: block;
+  position: fixed;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+  z-index: 999;
+  background-size: 100% 3px, 6px 100%;
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: #080d08;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-bright);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-mint);
+}
+
+/* Container */
+.terminal-window {
+  max-width: 1400px;
+  margin: 0 auto;
+  border: 1px solid var(--border-bright);
+  background: var(--bg-panel);
+  box-shadow: 0 0 15px rgba(43, 240, 76, 0.12);
+}
+
+/* Window Titlebar */
+.window-titlebar {
+  background: var(--bg-panel-header);
+  border-bottom: 1px solid var(--border-green);
+  padding: 6px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+}
+.window-title {
+  color: var(--text-mint);
+  font-weight: bold;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+}
+.window-controls {
+  display: flex;
+  gap: 8px;
+  font-weight: bold;
+  font-size: 11px;
+}
+.win-btn {
+  color: var(--text-dim);
+  cursor: pointer;
+  padding: 0 4px;
+}
+.win-btn:hover {
+  color: var(--text-green);
+}
+.win-btn.close:hover {
+  color: var(--text-red);
+}
+
+/* Hero Section */
+.hero-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 16px 20px;
+  background: #0a110a;
+  border-bottom: 1px solid var(--border-green);
+}
+.hero-ascii {
+  flex: 1 1 500px;
+  color: var(--text-mint);
+  white-space: pre;
+  font-size: 11.5px;
+  line-height: 1.15;
+  text-shadow: 0 0 4px rgba(135, 207, 62, 0.4);
+  overflow-x: auto;
+}
+.hero-sysinfo {
+  flex: 1 1 450px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+.sysinfo-header {
+  color: var(--text-mint);
+  font-weight: bold;
+  font-size: 14px;
+  border-bottom: 1px dashed var(--border-bright);
+  padding-bottom: 4px;
+  margin-bottom: 6px;
+}
+.sysinfo-row {
+  display: flex;
+}
+.sysinfo-label {
+  color: var(--text-cyan);
+  width: 170px;
+  flex-shrink: 0;
+}
+.sysinfo-val {
+  color: var(--text-white);
+}
+.sysinfo-val.status-active {
+  color: var(--text-green);
+  font-weight: bold;
+  text-shadow: 0 0 5px rgba(43, 240, 76, 0.5);
+}
+
+/* Command Bar */
+.cli-bar-container {
+  background: #060a06;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--border-bright);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.cli-prompt {
+  color: var(--text-mint);
+  font-weight: bold;
+  white-space: nowrap;
+}
+.cli-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-white);
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+.cli-btn {
+  background: transparent;
+  border: 1px solid var(--border-bright);
+  color: var(--text-mint);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 3px 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.cli-btn:hover {
+  background: var(--text-mint);
+  color: #000;
+  font-weight: bold;
+}
+.cli-btn.danger {
+  border-color: var(--text-red);
+  color: var(--text-red);
+}
+.cli-btn.danger:hover {
+  background: var(--text-red);
+  color: #000;
+}
+
+/* Grid Layout */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  grid-gap: 12px;
+  padding: 14px;
+}
+
+@media (max-width: 1024px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Panels */
+.terminal-panel {
+  background: #090e09;
+  border: 1px solid var(--border-green);
+}
+.panel-header {
+  background: var(--bg-panel-header);
+  border-bottom: 1px solid var(--border-green);
+  padding: 6px 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: var(--text-mint);
+  font-weight: bold;
+}
+.panel-body {
+  padding: 10px;
+}
+
+/* Metric Bars */
+.metric-row {
+  margin-bottom: 10px;
+}
+.metric-label-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11.5px;
+  margin-bottom: 3px;
+  color: var(--text-white);
+}
+.ascii-bar {
+  font-size: 11px;
+  letter-spacing: -0.5px;
+  color: var(--text-dim);
+}
+.ascii-bar .fill {
+  color: var(--text-green);
+}
+.ascii-bar .fill.high {
+  color: var(--text-amber);
+}
+.ascii-bar .fill.crit {
+  color: var(--text-red);
+}
+
+/* Dual Engine Gauge */
+.engine-card {
+  border: 1px solid var(--border-green);
+  background: #060906;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+}
+.engine-title {
+  color: var(--text-cyan);
+  font-weight: bold;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+.engine-desc {
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.35;
+}
+.engine-status-tag {
+  display: inline-block;
+  margin-top: 5px;
+  padding: 1px 6px;
+  font-size: 10.5px;
+  font-weight: bold;
+  border: 1px solid;
+}
+.tag-active {
+  color: var(--text-green);
+  border-color: var(--text-green);
+}
+.tag-anomaly {
+  color: var(--text-red);
+  border-color: var(--text-red);
+  background: rgba(255, 51, 51, 0.1);
+  animation: pulse 1s infinite alternate;
+}
+
+/* Attack Bot Control Station */
+.bot-scenario-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.bot-btn {
+  background: #060a06;
+  border: 1px solid var(--border-bright);
+  color: var(--text-white);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  padding: 6px 10px;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.15s ease;
+}
+.bot-btn:hover {
+  background: #142416;
+  border-color: var(--text-mint);
+  color: var(--text-mint);
+}
+.bot-btn.zeroday-btn {
+  border-color: var(--text-amber);
+  color: var(--text-amber);
+}
+.bot-btn.zeroday-btn:hover {
+  background: var(--text-amber);
+  color: #000;
+  font-weight: bold;
+}
+.btn-tag {
+  font-size: 10px;
+  padding: 1px 4px;
+  background: #111a12;
+  color: var(--text-cyan);
+  border: 1px solid var(--border-green);
+}
+
+/* Bot Console Log */
+.bot-terminal-output {
+  background: #040604;
+  border: 1px solid var(--border-green);
+  padding: 8px;
+  height: 130px;
+  overflow-y: auto;
+  font-size: 11px;
+  line-height: 1.35;
+  color: var(--text-white);
+}
+
+/* Alerts Table / Stream */
+.alerts-container {
+  height: 250px;
+  overflow-y: auto;
+}
+.alert-entry {
+  padding: 6px 8px;
+  border-bottom: 1px solid #142014;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 11.5px;
+}
+.alert-entry:hover {
+  background: #0e170e;
+}
+.alert-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.badge {
+  padding: 1px 5px;
+  font-size: 10px;
+  font-weight: bold;
+}
+.badge-CRITICAL {
+  background: rgba(255, 51, 51, 0.2);
+  color: var(--text-red);
+  border: 1px solid var(--text-red);
+}
+.badge-HIGH {
+  background: rgba(255, 176, 0, 0.2);
+  color: var(--text-amber);
+  border: 1px solid var(--text-amber);
+}
+.badge-MEDIUM {
+  background: rgba(0, 229, 255, 0.2);
+  color: var(--text-cyan);
+  border: 1px solid var(--text-cyan);
+}
+.badge-LOW {
+  background: rgba(43, 240, 76, 0.2);
+  color: var(--text-green);
+  border: 1px solid var(--text-green);
+}
+.badge-ML {
+  background: #1f1433;
+  color: #d175ff;
+  border: 1px solid #b547ff;
+}
+.alert-details {
+  color: var(--text-dim);
+  font-size: 11px;
+}
+.alert-action {
+  font-size: 10.5px;
+  color: var(--text-white);
+}
+
+/* Raw Event Log Console */
+.event-console {
+  background: #030503;
+  border: 1px solid var(--border-green);
+  padding: 8px;
+  height: 220px;
+  overflow-y: auto;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--text-white);
+}
+.log-line {
+  margin-bottom: 2px;
+  word-break: break-all;
+}
+.log-ts {
+  color: var(--text-dim);
+}
+.log-tag-PROC { color: var(--text-cyan); }
+.log-tag-FILE { color: var(--text-amber); }
+.log-tag-NET { color: var(--text-mint); }
+.log-tag-AUTH { color: var(--text-red); }
+.log-tag-ML { color: #d175ff; }
+
+/* Status Footer */
+.terminal-footer {
+  background: var(--bg-panel-header);
+  border-top: 1px solid var(--border-green);
+  padding: 4px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: var(--text-dim);
+}
+.footer-badge {
+  color: var(--text-mint);
+  font-weight: bold;
+}
+
+/* Animations */
+@keyframes blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+.cursor {
+  display: inline-block;
+  width: 7px;
+  height: 13px;
+  background: var(--text-green);
+  vertical-align: text-bottom;
+  animation: blink 0.9s infinite;
+}
+
+@keyframes pulse {
+  from { opacity: 0.6; }
+  to { opacity: 1; }
+}

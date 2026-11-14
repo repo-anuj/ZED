@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZED: Zero-day Endpoint Detection & Response</title>
+  <link rel="stylesheet" href="/static/terminal.css">
+</head>
+<body>
+
+  <div class="terminal-window">
+    <!-- Window Titlebar -->
+    <div class="window-titlebar">
+      <div class="window-title">zed@linuxmint-edr: ~ (ZED Zero-Day Defense Engine v1.0.0)</div>
+      <div class="window-controls">
+        <span class="win-btn">[—]</span>
+        <span class="win-btn">[+]</span>
+        <span class="win-btn close">[✕]</span>
+      </div>
+    </div>
+
+    <!-- Hero Section: Linux Mint Distro ASCII Art & Big ZED Hero -->
+    <div class="hero-container">
+      <div class="hero-ascii">
+        ___________          ███████╗███████╗██████╗ 
+       /  ________ \         ╚══███╔╝██╔════╝██╔══██╗
+      |  /   __   \ |          ███╔╝ █████╗  ██║  ██║
+      | |   /  |   | |        ███╔╝  ██╔══╝  ██║  ██║
+ ___  | |  |___|   | |       ███████╗███████╗██████╔╝
+/   \ | |   ______ | |       ╚══════╝╚══════╝╚═════╝ 
+| Z || |  /      || |   [ ZERO-DAY ENDPOINT DETECTION ]
+| E ||  \________/  |   [ &amp; AUTOMATED INCIDENT RESPONSE ]
+ \___/  \____________/  
+      </div>
+      <div class="hero-sysinfo">
+        <div class="sysinfo-header">zed@linuxmint-edr:~$ neofetch --security-profile</div>
+        <div class="sysinfo-row">
+          <span class="sysinfo-label">OS:</span>
+          <span class="sysinfo-val">Linux Mint 22 (XFCE/Cinnamon 64-bit)</span>
+        </div>
+        <div class="sysinfo-row">
+          <span class="sysinfo-label">KERNEL:</span>
+          <span class="sysinfo-val">Linux 6.8.0-generic x86_64</span>
+        </div>
+        <div class="sysinfo-row">
+          <span class="sysinfo-label">MEMORY PROFILE:</span>
+          <span class="sysinfo-val" id="ramNumbers">8 GB System Profile</span>
+        </div>
+        <div class="sysinfo-row">
+          <span class="sysinfo-label">DETECTION ARCH:</span>
+          <span class="sysinfo-val">Dual Engine (MITRE Rules + Isolation Forest ML)</span>
+        </div>
+        <div class="sysinfo-row">
+          <span class="sysinfo-label">SYSTEM UPTIME:</span>
+          <span class="sysinfo-val" id="sysUptime">0h 0m 0s</span>
+        </div>
+        <div class="sysinfo-row">
+          <span class="sysinfo-label">EDR DAEMON STATUS:</span>
+          <span class="sysinfo-val status-active" id="connStatus">[ ACTIVE - SECURE ]</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Interactive Terminal Command Bar -->
+    <div class="cli-bar-container">
+      <span class="cli-prompt">root@zed-defense:~$</span>
+      <input type="text" id="cliInput" class="cli-input" placeholder="Type command (e.g. 'attack 6', 'train', 'status', 'help') or click chips..." autocomplete="off" spellcheck="false">
+      <span class="cursor"></span>
+      <div style="display: flex; gap: 6px;">
+        <a href="/demo" target="_blank" class="cli-btn" style="text-decoration: none; display: flex; align-items: center; background: #132b17; border-color: #87cf3e; color: #87cf3e;">[ 🏥 VICTIM DEMO PORTAL ↗ ]</a>
+        <button class="cli-btn" onclick="triggerScenario(6)">[ ATTACK: ZERO-DAY ]</button>
+        <button class="cli-btn" onclick="trainBaseline()">[ TRAIN ML ]</button>
+        <button class="cli-btn" onclick="exportReport()">[ EXPORT REPORT ]</button>
+        <button class="cli-btn danger" onclick="clearLogs()">[ PURGE LOGS ]</button>
+      </div>
+    </div>
+
+    <!-- Main Terminal Dashboard Grid -->
+    <div class="dashboard-grid">
+
+      <!-- LEFT COLUMN: System Metrics & Controls -->
+      <div>
+        <!-- System Hardware & Telemetry -->
+        <div class="terminal-panel" style="margin-bottom: 12px;">
+          <div class="panel-header">
+            <span>&gt; SYSTEM TELEMETRY (htop profile)</span>
+            <span style="font-size: 11px; color: var(--text-dim);">8GB RAM LAB</span>
+          </div>
+          <div class="panel-body">
+            <div class="metric-row">
+              <div class="metric-label-row">
+                <span>CPU UTILIZATION:</span>
+              </div>
+              <div class="ascii-bar" id="cpuBar">[░░░░░░░░░░░░░░░░] 0.0%</div>
+            </div>
+
+            <div class="metric-row">
+              <div class="metric-label-row">
+                <span>RAM ALLOCATION:</span>
+              </div>
+              <div class="ascii-bar" id="ramBar">[░░░░░░░░░░░░░░░░] 0.0%</div>
+            </div>
+
+            <div style="border-top: 1px dashed var(--border-green); padding-top: 8px; margin-top: 8px; font-size: 11.5px; line-height: 1.6;">
+              <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--text-dim);">Total Events:</span>
+                <strong id="totalEventsCount" style="color: var(--text-white);">0</strong>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--text-dim);">Threat Alerts:</span>
+                <strong id="totalAlertsCount" style="color: var(--text-amber);">0</strong>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--text-dim);">&nbsp; ├─ Rule Detections:</span>
+                <strong id="ruleAlertsCount" style="color: var(--text-cyan);">0</strong>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--text-dim);">&nbsp; └─ ML Anomaly Detections:</span>
+                <strong id="mlAlertsCount" style="color: #d175ff;">0</strong>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--text-dim);">Automated Responses:</span>
+                <strong id="actionsExecutedCount" style="color: var(--text-green);">0</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dual Engine Status -->
+        <div class="terminal-panel" style="margin-bottom: 12px;">
+          <div class="panel-header">
+            <span>&gt; DUAL-ENGINE DIAGNOSTICS</span>
+          </div>
+          <div class="panel-body">
+            <!-- Engine 1: Rules -->
+            <div class="engine-card">
+              <div class="engine-title">ENGINE 1: BEHAVIORAL RULE ENGINE</div>
+              <div class="engine-desc">
+                MITRE ATT&CK coverage: T1059.004 (Web Shell), T1053.003 (Cron Persistence), T1486 (Ransomware Velocity), T1071.001 (C2 Beaconing), T1110.001 (Brute Force).
+              </div>
+              <span class="engine-status-tag tag-active">5 ACTIVE RULES</span>
+            </div>
+
+            <!-- Engine 2: Isolation Forest ML -->
+            <div class="engine-card">
+              <div class="engine-title">ENGINE 2: ISOLATION FOREST (ML)</div>
+              <div class="engine-desc">
+                Unsupervised anomaly detector for signatureless zero-day evasion. Analyzes 7-dimensional behavioral feature vectors.
+              </div>
+              <div style="margin-top: 6px; font-size: 11px;">
+                ANOMALY METER: <span id="mlAnomalyGauge" style="font-weight: bold;">[ INITIALIZING... ]</span>
+              </div>
+              <span class="engine-status-tag tag-active" id="mlEngineTag">ACTIVE - SCORING</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Attack Simulator Bot Station -->
+        <div class="terminal-panel">
+          <div class="panel-header">
+            <span>&gt; ATTACK SIMULATOR BOT STATION</span>
+            <span style="font-size: 10px; color: var(--text-amber);">[SAFE LAB SINK]</span>
+          </div>
+          <div class="panel-body">
+            <div class="bot-scenario-list">
+              <button class="bot-btn" onclick="triggerScenario(1)">
+                <span>[1] Web Shell Spawning Bash</span>
+                <span class="btn-tag">T1059.004</span>
+              </button>
+              <button class="bot-btn" onclick="triggerScenario(2)">
+                <span>[2] Scheduled Task / Cron Backdoor</span>
+                <span class="btn-tag">T1053.003</span>
+              </button>
+              <button class="bot-btn" onclick="triggerScenario(3)">
+                <span>[3] Ransomware File Rapid Rename</span>
+                <span class="btn-tag">T1486</span>
+              </button>
+              <button class="bot-btn" onclick="triggerScenario(4)">
+                <span>[4] Periodic Outbound C2 Beacon</span>
+                <span class="btn-tag">T1071.001</span>
+              </button>
+              <button class="bot-btn" onclick="triggerScenario(5)">
+                <span>[5] Rapid Auth Brute Force</span>
+                <span class="btn-tag">T1110.001</span>
+              </button>
+              <button class="bot-btn zeroday-btn" onclick="triggerScenario(6)">
+                <span>[6] ★ SIMULATED ZERO-DAY (ML Proof)</span>
+                <span class="btn-tag" style="background: #2a1f00; color: #ffb000; border-color: #ffb000;">EVADES RULES</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN: Console, Alerts & Logs -->
+      <div>
+        <!-- Attack Bot Terminal Console -->
+        <div class="terminal-panel" style="margin-bottom: 12px;">
+          <div class="panel-header">
+            <span>&gt; ATTACK SIMULATOR CONSOLE (STDOUT)</span>
+            <span style="font-size: 10px; color: var(--text-dim);">Live Execution Trace</span>
+          </div>
+          <div class="panel-body" style="padding: 0;">
+            <div class="bot-terminal-output" id="botConsole"></div>
+          </div>
+        </div>
+
+        <!-- Detection Alerts Feed -->
+        <div class="terminal-panel" style="margin-bottom: 12px;">
+          <div class="panel-header">
+            <span>&gt; THREAT DETECTION ALERTS (DUAL ENGINE)</span>
+            <span style="font-size: 10px; color: var(--text-dim);">Real-Time Audit Trail</span>
+          </div>
+          <div class="panel-body" style="padding: 0;">
+            <div class="alerts-container" id="alertsFeed">
+              <div id="emptyAlertsNotice" style="color: var(--text-dim); padding: 12px; font-size: 12px;">
+                [ NO ACTIVE THREATS RECORDED - SYSTEM SECURE ]
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Raw Telemetry Event Stream -->
+        <div class="terminal-panel">
+          <div class="panel-header">
+            <span>&gt; LIVE TELEMETRY STREAM (`tail -f /proc/zed_events`)</span>
+            <div style="display: flex; gap: 8px;">
+              <button class="cli-btn" id="pauseStreamBtn" onclick="togglePauseStream()" style="padding: 1px 6px; font-size: 10px;">[ PAUSE ]</button>
+            </div>
+          </div>
+          <div class="panel-body" style="padding: 0;">
+            <div class="event-console" id="eventConsole"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Terminal Footer -->
+    <div class="terminal-footer">
+      <div>
+        <span>ZED EDR Daemon: <strong class="footer-badge">ONLINE</strong></span>
+        <span style="margin: 0 8px;">|</span>
+        <span>Auto-Response: <strong class="footer-badge" style="color: var(--text-green);">ENABLED</strong></span>
+        <span style="margin: 0 8px;">|</span>
+        <span>Storage: <span style="color: var(--text-white);">SQLite (WAL)</span></span>
+      </div>
+      <div>
+        <span>Press <strong style="color: var(--text-mint);">Enter</strong> in CLI to execute | Press <strong style="color: var(--text-amber);">Scenario [6]</strong> for Zero-Day Test</span>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/terminal.js"></script>
+</body>
+</html>

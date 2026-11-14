@@ -1,0 +1,16 @@
+services:
+  zed-edr:
+    build: .
+    container_name: zed-edr
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8000
+      - ZED_AUTO_RESPONSE=true
+    volumes:
+      # Persist SQLite threat database across container restarts
+      - ./zed.db:/app/zed.db
+      - ./sandbox_target:/app/sandbox_target
+      - ./sandbox_cron:/app/sandbox_cron

